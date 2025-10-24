@@ -1,11 +1,18 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navigation from "@/components/Navigation";
+import HeroSection from "@/components/HeroSection";
+import ItineraryGenerator from "@/components/ItineraryGenerator";
+import RecommendedDestinations from "@/components/RecommendedDestinations";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <HeroSection />
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <ItineraryGenerator />
+          <RecommendedDestinations />
+        </div>
       </div>
     </div>
   );
