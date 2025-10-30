@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Calendar, DollarSign } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Leaf, Waves, Ship, Mountain, ShoppingBag, Sun, Fish, Plane } from "lucide-react";
+import Navigation from "@/components/Navigation";
 
 interface Day {
   day: number;
@@ -35,84 +36,136 @@ const Results = () => {
     );
   }
 
+  const getDayIcon = (day: number) => {
+    const icons = [Leaf, Waves, Ship, Mountain, ShoppingBag];
+    const Icon = icons[(day - 1) % icons.length];
+    return <Icon className="h-8 w-8 text-muted-foreground" />;
+  };
+
+  const getActivityIcon = (day: number) => {
+    const icons = [Sun, Fish, Fish, Fish, Plane];
+    const Icon = icons[(day - 1) % icons.length];
+    return <Icon className="h-8 w-8 text-muted-foreground" />;
+  };
+
+  const calculateTotalBudget = () => {
+    let total = 0;
+    itinerary.days.forEach(day => {
+      day.activities.forEach(activity => {
+        const matches = activity.match(/₹[\d,]+/g);
+        if (matches) {
+          matches.forEach(match => {
+            const amount = parseInt(match.replace(/[₹,]/g, ''));
+            if (!isNaN(amount)) total += amount;
+          });
+        }
+      });
+    });
+    return total;
+  };
+
+  const totalBudget = calculateTotalBudget();
+  const userQuery = `Plan a ${itinerary.duration}-day budget trip to ${itinerary.destination}${itinerary.budget ? ` under ₹${itinerary.budget.toLocaleString()}` : ''}`;
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
-        </Button>
-
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4 text-foreground">
-              Your {itinerary.destination} Adventure
-            </h1>
-            <div className="flex flex-wrap gap-4 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                <span>{itinerary.destination}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <span>{itinerary.duration} Days</span>
-              </div>
-              {itinerary.budget && (
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  <span>₹{itinerary.budget.toLocaleString()}</span>
-                </div>
-              )}
+      <Navigation />
+      
+      {/* Hero Section with Background */}
+      <div 
+        className="relative pt-24 pb-12 bg-cover bg-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/src/assets/hero-bg.jpg')`
+        }}
+      >
+        <div className="container mx-auto px-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-center text-white mb-8">
+            Your Personalized Travel Itinerary
+          </h1>
+          
+          <div className="flex justify-center items-center gap-4 flex-wrap">
+            <div className="bg-white px-6 py-3 rounded-lg shadow-md">
+              <p className="text-foreground text-sm md:text-base">{userQuery}</p>
             </div>
-            {itinerary.interests && itinerary.interests.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {itinerary.interests.map((interest, idx) => (
-                  <span 
-                    key={idx}
-                    className="px-3 py-1 bg-accent/20 text-accent rounded-full text-sm"
-                  >
-                    {interest}
-                  </span>
-                ))}
-              </div>
-            )}
+            <Button 
+              onClick={() => navigate("/")}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 h-11"
+            >
+              Plan Another Trip
+            </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
+            Your {itinerary.duration}-Day {itinerary.destination} Adventure
+          </h2>
 
           <div className="space-y-6">
             {itinerary.days.map((day) => (
-              <Card key={day.day} className="border-border">
-                <CardHeader className="bg-accent/10">
-                  <CardTitle className="text-2xl text-foreground">
-                    {day.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <ul className="space-y-3">
-                    {day.activities.map((activity, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-medium">
-                          {idx + 1}
-                        </span>
-                        <span className="text-foreground pt-0.5">{activity}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <Card key={day.day} className="border-border bg-card overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Left Icon */}
+                    <div className="flex-shrink-0 mt-2">
+                      {getDayIcon(day.day)}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-foreground mb-3">
+                        Day {day.day}: {day.title.replace(/^Day \d+:\s*/, '')}
+                      </h3>
+                      <ul className="space-y-2">
+                        {day.activities.map((activity, idx) => (
+                          <li key={idx} className="text-foreground/90 text-sm md:text-base">
+                            {activity}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Right Icon */}
+                    <div className="flex-shrink-0 mt-2">
+                      {getActivityIcon(day.day)}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <div className="mt-8 text-center">
-            <Button 
-              onClick={() => navigate("/")}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 h-12 text-base font-medium"
-            >
-              Plan Another Trip
-            </Button>
+          {/* Budget Summary */}
+          <div className="mt-12 text-center">
+            <p className="text-xl font-semibold text-foreground mb-8">
+              Total Estimated Budget: ₹{totalBudget.toLocaleString()} 
+              {itinerary.budget && (
+                <span className="text-muted-foreground"> (Under ₹{itinerary.budget.toLocaleString()})</span>
+              )}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 flex-wrap">
+              <Button 
+                variant="outline"
+                className="px-8"
+              >
+                Share Itinerary
+              </Button>
+              <Button 
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8"
+              >
+                Download PDF
+              </Button>
+              <Button 
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-8"
+              >
+                Download PDF
+              </Button>
+            </div>
           </div>
         </div>
       </div>
